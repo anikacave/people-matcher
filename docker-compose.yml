@@ -1,0 +1,87 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: config/app/Dockerfile
+    command: "python -m lib.server"
+    # command: "python recommender.py" # for debug
+    # command: "python -m lib.db" # for initialization of database
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      - PG_USER=pg
+      - PG_PW=pg
+      - PG_DB=app
+      - PG_HOST=postgres
+      - PG_PORT=5432
+    ports:
+      - "8050:8050"
+    links:
+      - postgres
+      - celery_worker
+
+  redis:
+    image: redis
+    ports:
+      - "6379"
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: config/app/Dockerfile
+    command: "celery -A lib.tasks worker --loglevel=info"
+    volumes:
+      - .:/app
+    links:
+      - redis
+
+  test_celery_tasks:
+    build:
+      context: .
+      dockerfile: config/app/Dockerfile
+    command: "python -m tests.test_celery_tasks"
+    volumes:
+      - .:/app
+
+  postgres:
+    image: postgres:11.3
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=pg
+      - POSTGRES_DB=app
+      - PGDATA=/data/postgres
+    ports:
+      - "5432"
+    restart: unless-stopped
+    volumes:
+      - ./data/postgres:/data/postgres
+
+  test_app:
+    build:
+      context: .
+      dockerfile: config/app/Dockerfile
+    command: "sh -c 'python -m lib.db && pytest tests'"
+    # command: "python -m lib.db"
+    volumes:
+      - .:/app
+    environment:
+      - PG_USER=pg
+      - PG_PW=pg
+      - PG_HOST=test_postgres
+      - PG_PORT=5432
+      - PG_DB=test_app
+    links:
+      - test_postgres
+      - celery_worker
+
+  test_postgres:
+    image: postgres:11.3
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=pg
+      - POSTGRES_DB=test_app
+    ports:
+      - "5432"
+    restart: "no"
