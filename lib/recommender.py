@@ -5,6 +5,7 @@ import base64
 import datetime
 import io
 
+from lib.searchOptions import groupChoice, filterByVar
 from lib.geo import geocode, get_distance
 from lib.data_utils import (
     load_mock_mentees,
@@ -67,6 +68,12 @@ def generate_match_suggestions(df1, df2, options={}):
     """
     options: max_dinstance etc.
     """
+
+
+
+    """
+    Do stuff IDK
+    """
     address_col1 = find_address_column(df1)
     assert address_col1 is not None, "Which column is address? {}".format(df1.columns)
     address_col2 = find_address_column(df2)
@@ -89,8 +96,21 @@ def generate_match_suggestions(df1, df2, options={}):
                     (score_obj["score"], row1, df2.iloc[i], score_obj["features"])
                 )
 
+<<<<<<< HEAD
+    #match_suggestions = sorted(match_suggestions, key=lambda s: -s[0])
+=======
     match_suggestions = sorted(match_suggestions, key=lambda s: -s[0])
+
+
+
+    
+>>>>>>> a92d27c... adding specific params for filter options
     return list(match_suggestions)
+
+
+
+
+
 
 
 def sanity_check():

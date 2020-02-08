@@ -15,6 +15,7 @@ from dash import Dash
 from dash.dependencies import Input, State, Output
 import sys
 
+from lib.searchOptions import groupChoice, filterByVar
 from lib import recommender, db
 from lib.data_utils import parse_uploaded_content
 
@@ -137,18 +138,30 @@ def root_layout():
             html.Section(
                 className="jumbotron text-center",
                 children=[
-                    html.H1("People Matcher", className="text-center jumbotron-heading")
+                    html.H1("People Matcher", className="text-center jumbotron-heading"),
                 ],
             ),
             html.Div(
                 className="row", children=[mentees_data_table(), mentors_data_table()]
             ),
+            
+
             html.Section(
                 className="jumbotron",
                 children=[
                     html.Div(
                         className="form text-center",
-                        children=[html.Button("Suggest Matches", id="btn-suggest")],
+                        children=[
+                            html.Button("Suggest All Matches", id="btn-suggest"),
+                            html.Button("Get Specific Matches", id="btn-suggest-specific"),
+                            dcc.RadioItems(
+                                options=[
+                                    {'label': 'By Mentor         ', 'value': 'Mentor'},
+                                    {'label': u'By Mentee', 'value': 'MTL'}
+                                ],
+                                value='MTL'
+                            ),
+                        ],
                     ),
                     html.Div(
                         className="row",
@@ -173,7 +186,10 @@ app.layout = root_layout()
     Output("mentees-table", "children"),
     [Input("mentees-mock-checklist", "value"), Input("mentees-uploader", "contents")],
     [State("mentees-table", "children")],
+
 )
+
+
 def update_mentees_table(value_list, file_content, existing_state):
     if "mentees-use-mock-data" in value_list:
         df = recommender.load_mock_mentees()
@@ -227,9 +243,10 @@ def update_mentors_table(value_list, file_content, existing_state):
             )
 
 
+
 @app.callback(
     Output("suggested-matches-container", "children"),
-    [Input("btn-suggest", "n_clicks")],
+    [Input("btn-suggest", "n_clicks"), Input("btn-suggest-specific", "n_clicks")],
     [State("suggested-matches-container", "children")],
 )
 def update_suggested_matches(n_clicks, existing_state):
@@ -282,7 +299,7 @@ def update_suggested_matches(n_clicks, existing_state):
 
     return [
         html.H2("Suggested Matches", className="mt-2 mb-1"),
-        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(match_suggestions)]),
+        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(match_suggestions, key=lambda s: (s[2]["name"], -s[0])))]),
     ]
 
 
