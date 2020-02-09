@@ -96,15 +96,8 @@ def generate_match_suggestions(df1, df2, options={}):
                     (score_obj["score"], row1, df2.iloc[i], score_obj["features"])
                 )
 
-<<<<<<< HEAD
-    #match_suggestions = sorted(match_suggestions, key=lambda s: -s[0])
-=======
     match_suggestions = sorted(match_suggestions, key=lambda s: -s[0])
 
-
-
-    
->>>>>>> a92d27c... adding specific params for filter options
     return list(match_suggestions)
 
 
