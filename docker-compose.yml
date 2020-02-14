@@ -62,7 +62,7 @@ services:
     build:
       context: .
       dockerfile: config/app/Dockerfile
-    command: "sh -c 'python -m lib.db && pytest tests'"
+    command: "sh -c 'python -m lib.db && pytest -s tests'"
     # command: "python -m lib.db"
     volumes:
       - .:/app
