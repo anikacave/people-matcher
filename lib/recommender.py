@@ -68,8 +68,6 @@ def generate_match_suggestions(df1, df2, options={}):
     options: max_dinstance etc.
     """
 
-
-
     """
     Do stuff IDK
     """
@@ -90,6 +88,13 @@ def generate_match_suggestions(df1, df2, options={}):
     for _, row1 in df1.iterrows():
         score_objs = get_match_scores(row1, df2)
         for i, score_obj in enumerate(score_objs):
+            # filter by race if race option enabled
+            if("race" in options):
+                if(options["race"] and not score_obj["features"]["ethnicity_match"]):
+                    continue
+
+
+            # filter by score
             if score_obj["score"] > min_score:
                 match_suggestions.append(
                     (score_obj["score"], row1, df2.iloc[i], score_obj["features"])

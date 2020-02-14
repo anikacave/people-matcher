@@ -23,3 +23,16 @@ def test_recommender_with_mock_data():
     print("----------------------------------------")
     for s in match_suggestions:
         print(s[0], s[1]["name"], s[1].address, s[2]["name"], s[2].address)
+
+
+def test_race_filter():
+    df1 = load_mock_mentors().head(1)
+    df2 = load_mock_mentees().head(2)
+    print(df1)
+    print(df2)
+    match_suggestions = generate_match_suggestions(df1, df2, {"race": True})
+    print("results from filtering by race")
+    for s in match_suggestions:
+        print(s)
+
+
