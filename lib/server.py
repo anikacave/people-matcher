@@ -15,7 +15,6 @@ from dash import Dash
 from dash.dependencies import Input, State, Output
 import sys
 
-from lib.searchOptions import groupChoice, filterByVar
 from lib import recommender, db
 from lib.data_utils import parse_uploaded_content
 

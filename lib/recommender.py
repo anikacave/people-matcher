@@ -5,7 +5,6 @@ import base64
 import datetime
 import io
 
-from lib.searchOptions import groupChoice, filterByVar
 from lib.geo import geocode, get_distance
 from lib.data_utils import (
     load_mock_mentees,
