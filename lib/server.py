@@ -245,7 +245,7 @@ def update_mentors_table(value_list, file_content, existing_state):
 
 @app.callback(
     Output("suggested-matches-container", "children"),
-    [Input("btn-suggest", "n_clicks"), Input("btn-suggest-specific", "n_clicks")],
+    [Input("btn-suggest", "n_clicks")],
     [State("suggested-matches-container", "children")],
 )
 def update_suggested_matches(n_clicks, existing_state):
