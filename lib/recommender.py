@@ -106,8 +106,16 @@ def generate_match_suggestions(df1, df2, options={}):
 
 
 
-
-
+def sort_by(matches,para):
+    if (para=="mentorName"):
+       return sorted(matches, key=lambda s: s[1]["name"])
+    if (para=="score"):
+       return sorted(matches, key=lambda s: -s[0])
+    if (para=="menteeName"):
+       return sorted(matches, key=lambda s: s[2])
+    if (para=="ethnicity"):
+       return sorted(matches, key=lambda s: s[3]['ethnicity_match'])
+    
 
 
 def sanity_check():

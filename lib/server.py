@@ -14,7 +14,6 @@ from flask import Flask
 from dash import Dash
 from dash.dependencies import Input, State, Output
 import sys
-
 from lib import recommender, db
 from lib.data_utils import parse_uploaded_content
 
@@ -29,7 +28,7 @@ external_scripts = [
     "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
 ]
 server = Flask(__name__)
-
+matches = []
 
 @server.route("/health")
 def index():
@@ -39,6 +38,7 @@ def index():
 app = Dash(
     server=server, url_base_pathname="/", external_stylesheets=external_stylesheets
 )
+
 
 
 def uploader(id="uploader"):
@@ -153,14 +153,33 @@ def root_layout():
                         children=[
                             html.Button("Suggest All Matches", id="btn-suggest"),
                             html.Button("Get Specific Matches", id="btn-suggest-specific"),
-                            dcc.RadioItems(
-                                options=[
-                                    {'label': 'By Mentor         ', 'value': 'Mentor'},
-                                    {'label': u'By Mentee', 'value': 'MTL'}
-                                ],
-                                value='MTL'
-                            ),
+                            
                         ],
+                    ),
+                    html.Div(
+                        children=[
+                        html.Label('Sort By'),
+                            dcc.Dropdown(style={'textAlign': 'center',},
+                            options=[
+                                {'label': 'Mentor Name', 'value': 'MentorN'},
+                                {'label': 'Mentee Name', 'value': 'MenteeN'},
+                                {'label': 'Distance', 'value': 'Dist'},
+                                {'label': 'Gender Match', 'value': 'GM'}
+                            ],
+                            value='SORT', id='SORTBY'
+                        ),
+                        html.Label('Filter By'),
+                        dcc.RadioItems(
+                            options=[
+                                {'label': 'By Name', 'value': 'Mentor'},
+                                {'label': u'Max Distance', 'value': 'MaxDist'},
+                                {'label': u'Gender', 'value': 'Gender'},
+                                {'label': u'Choose Ethnicity', 'value': 'Ethn'}
+                            ],
+                            value='MTL'
+                        ),
+                        ]
+                    
                     ),
                     html.Div(
                         className="row",
@@ -187,8 +206,6 @@ app.layout = root_layout()
     [State("mentees-table", "children")],
 
 )
-
-
 def update_mentees_table(value_list, file_content, existing_state):
     if "mentees-use-mock-data" in value_list:
         df = recommender.load_mock_mentees()
@@ -260,6 +277,7 @@ def update_suggested_matches(n_clicks, existing_state):
         __store__["mentors"],  # .head(2),
         __store__["mentees"],  # .head(2),
     )
+    matches=match_suggestions
 
     def suggestion_to_dash(s, index):
         return html.Div(
@@ -298,9 +316,24 @@ def update_suggested_matches(n_clicks, existing_state):
 
     return [
         html.H2("Suggested Matches", className="mt-2 mb-1"),
-        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(match_suggestions, key=lambda s: (s[2]["name"], -s[0])))]),
+        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(matches, "mentorName"))]),
     ]
 
+
+#@app.callback(
+ #   Output("suggested-matches-container", "children"),
+  #  [Input("SORTBY", 'value')],
+   # [State("suggested-matches-container", "children")],
+#)
+#def sort_suggested_matches(value, existing_state):
+ #   if value=='Dist':
+  #      i=0
+   # return [
+    #    html.H2("Suggested Matches Sorted", className="mt-2 mb-1 ?"),
+     #   html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(match_suggestions, key=lambda s: s[i]))]),
+        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(match_suggestions, "mentorName"))]),
+    #]
 
 if __name__ == "__main__":
     # sanity_check()
