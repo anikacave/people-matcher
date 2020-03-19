@@ -112,9 +112,11 @@ def sort_by(matches,para):
     if (para=="score"):
        return sorted(matches, key=lambda s: -s[0])
     if (para=="menteeName"):
-       return sorted(matches, key=lambda s: s[2])
+       return sorted(matches, key=lambda s: s[2]["name"])
     if (para=="ethnicity"):
-       return sorted(matches, key=lambda s: s[3]['ethnicity_match'])
+        return sorted(matches, key=lambda s: -s[3]['ethnicity_match'])
+    if (para=="distance"):
+        return sorted(matches, key=lambda s: s[3]['distance_in_miles'])
     
 
 

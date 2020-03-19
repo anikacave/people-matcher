@@ -161,12 +161,13 @@ def root_layout():
                         html.Label('Sort By'),
                             dcc.Dropdown(style={'textAlign': 'center',},
                             options=[
-                                {'label': 'Mentor Name', 'value': 'MentorN'},
-                                {'label': 'Mentee Name', 'value': 'MenteeN'},
-                                {'label': 'Distance', 'value': 'Dist'},
-                                {'label': 'Gender Match', 'value': 'GM'}
+                                {'label': u'Mentor Name', 'value': 'mentorName'},
+                                {'label': u'Mentee Name', 'value': 'menteeName'},
+                                {'label': u'Distance', 'value': 'distance'},
+                                {'label': u'Ethinicity Match', 'value': 'ethnicity'}
                             ],
-                            value='SORT', id='SORTBY'
+                            id='SORTBY',
+                            placeholder="Select"
                         ),
                         html.Label('Filter By'),
                         dcc.RadioItems(
@@ -187,8 +188,14 @@ def root_layout():
                             html.Div(
                                 children=[],
                                 id="suggested-matches-container",
-                                className="col-12 text-center",
+                                className="col text-center",
+                            ),
+                            html.Div(
+                                children=[],
+                                id="suggested-matches-sorted-container",
+                                className="col text-center",
                             )
+                            
                         ],
                     ),
                 ],
@@ -258,28 +265,7 @@ def update_mentors_table(value_list, file_content, existing_state):
                 "Cannot understand the uploaded file.", className="text-danger"
             )
 
-
-
-@app.callback(
-    Output("suggested-matches-container", "children"),
-    [Input("btn-suggest", "n_clicks")],
-    [State("suggested-matches-container", "children")],
-)
-def update_suggested_matches(n_clicks, existing_state):
-    if n_clicks is None or n_clicks == "":
-        return existing_state
-    if "mentors" not in __store__ or "mentees" not in __store__:
-        return [
-            html.Div("Please upload or use mock data for both mentors and mentees.")
-        ]
-    match_suggestions = recommender.generate_match_suggestions(
-        # TODO: using head() for debugging, need to remove it
-        __store__["mentors"],  # .head(2),
-        __store__["mentees"],  # .head(2),
-    )
-    matches=match_suggestions
-
-    def suggestion_to_dash(s, index):
+def suggestion_to_dash(s, index):
         return html.Div(
             id="suggestion-{}".format(index),
             className="card",
@@ -314,26 +300,78 @@ def update_suggested_matches(n_clicks, existing_state):
             ),
         )
 
+
+def create_matches():
+
+    if "mentors" not in __store__ or "mentees" not in __store__:
+        return [
+            html.Div("Please upload or use mock data for both mentors and mentees.")
+        ]
+    match_suggestions = recommender.generate_match_suggestions(
+        # TODO: using head() for debugging, need to remove it
+        __store__["mentors"],  # .head(2),
+        __store__["mentees"],  # .head(2),
+    )
+    matches=match_suggestions
+    return matches
+
+def get_matches():
+    if len(matches)==0:
+        return create_matches()
+    return matches
+    # if len(matches)==0:
+        
+    #     return matches
+    # else:
+    #     return matches
+
+
+
+@app.callback(
+    Output("suggested-matches-container", "children"),
+    [Input("btn-suggest", "n_clicks")],
+    [State("suggested-matches-container", "children")],
+)
+def update_suggested_matches(n_clicks, existing_state):
+    if n_clicks is None or n_clicks == "":
+        return existing_state
+
     return [
-        html.H2("Suggested Matches", className="mt-2 mb-1"),
+        html.H2("Suggested Matches", className="mt-3 mb-1"),
         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
-        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(matches, "mentorName"))]),
+        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
     ]
 
+# @app.callback(
+#     Output("suggested-matches-sorted-container", "children"),
+#     [Input("btn-suggest-specific", "n_clicks")],
+#     [State("suggested-matches-sorted-container", "children")],
+# )
+# def sort_suggested_matches(n_clicks, existing_state):
+#     if n_clicks is None or n_clicks == "":
+#         return existing_state
 
-#@app.callback(
- #   Output("suggested-matches-container", "children"),
-  #  [Input("SORTBY", 'value')],
-   # [State("suggested-matches-container", "children")],
-#)
-#def sort_suggested_matches(value, existing_state):
- #   if value=='Dist':
-  #      i=0
-   # return [
-    #    html.H2("Suggested Matches Sorted", className="mt-2 mb-1 ?"),
-     #   html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(match_suggestions, key=lambda s: s[i]))]),
-        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(match_suggestions, "mentorName"))]),
-    #]
+#     return [
+#         html.H2("Suggested Matches Sorted", className="mt-2 mb-1"),
+#         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+#         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
+#     ]
+
+@app.callback(
+    Output("suggested-matches-sorted-container", "children"),
+    [Input("SORTBY", "value")],
+    [State("suggested-matches-sorted-container", "children")],
+)
+def sort_suggested_matches(value_in, existing_state):
+    if value_in is None:
+        return existing_state
+
+    return [
+        html.H2("Suggested Matches Sorted", className="mt-2 mb-1"),
+        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), value_in))]),
+    ]
+
 
 if __name__ == "__main__":
     # sanity_check()
