@@ -151,8 +151,8 @@ def root_layout():
                     html.Div(
                         className="form text-center",
                         children=[
-                            html.Button("Suggest All Matches", id="btn-suggest"),
-                            html.Button("Get Specific Matches", id="btn-suggest-specific"),
+                            # html.Button("Suggest All Matches", id="btn-suggest"),
+                            # html.Button("Get Specific Matches", id="btn-suggest-specific"),
                             
                         ],
                     ),
@@ -163,6 +163,7 @@ def root_layout():
                             options=[
                                 {'label': u'Mentor Name', 'value': 'mentorName'},
                                 {'label': u'Mentee Name', 'value': 'menteeName'},
+                                {'label': u'Score', 'value': 'score'},
                                 {'label': u'Distance', 'value': 'distance'},
                                 {'label': u'Ethinicity Match', 'value': 'ethnicity'}
                             ],
@@ -172,24 +173,32 @@ def root_layout():
                         html.Label('Filter By'),
                         dcc.RadioItems(
                             options=[
-                                {'label': 'By Name', 'value': 'Mentor'},
-                                {'label': u'Max Distance', 'value': 'MaxDist'},
-                                {'label': u'Gender', 'value': 'Gender'},
-                                {'label': u'Choose Ethnicity', 'value': 'Ethn'}
+                                {'label': 'By Mentor', 'value': 'mentorName'},
+                                {'label': u'By Mentee', 'value': 'menteeName'},
+                                {'label': u'By Score', 'value': 'score'},
+                                {'label': u'Max Distance', 'value': 'distance'},
+                                {'label': u'Ethnicity Match', 'value': 'ethnicity'}
                             ],
-                            value='MTL'
+                            id='FILTER'
                         ),
+                        html.Div(
+                                children=[html.H3("Used For Filtering:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),],
+                                id="get-specifics-container",
+                                className="col text-center",
+                            ),
+                        # dcc.Input(id='get-specifics', value='initial value', type='text'),
+                        html.Div(
+                        html.Button("Get Matches", id="btn-filter"),
+                        className="col text-center",
+                        ),
+                        
                         ]
                     
                     ),
                     html.Div(
                         className="row",
                         children=[
-                            html.Div(
-                                children=[],
-                                id="suggested-matches-container",
-                                className="col text-center",
-                            ),
+                            
                             html.Div(
                                 children=[],
                                 id="suggested-matches-sorted-container",
@@ -319,28 +328,55 @@ def get_matches():
     if len(matches)==0:
         return create_matches()
     return matches
-    # if len(matches)==0:
-        
-    #     return matches
-    # else:
-    #     return matches
-
 
 
 @app.callback(
-    Output("suggested-matches-container", "children"),
-    [Input("btn-suggest", "n_clicks")],
-    [State("suggested-matches-container", "children")],
+    Output("get-specifics-container", "children"),
+    [Input("FILTER", "value")],
+    [State("get-specifics-container", "children")],
 )
-def update_suggested_matches(n_clicks, existing_state):
-    if n_clicks is None or n_clicks == "":
+def get_specifics_filtering(value_in, existing_state):
+    if value_in is None:
         return existing_state
+    
+    if value_in == "mentorName":
+        return [html.H3("Enter Mentor Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
 
-    return [
-        html.H2("Suggested Matches", className="mt-3 mb-1"),
-        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
-        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
-    ]
+    if value_in == "menteeName":
+        return [html.H3("Enter Mentee Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+    
+    if value_in == "score":
+        return [html.H3("Enter Minimum Score:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+
+    if value_in == "distance":
+        return [html.H3("Enter Maximum Distance:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+
+    if value_in == "ethnicity":
+        return [html.H3("Only Display Matches with the Same Ethnicity"), dcc.Input(id='get-specifics', value='Ethnicity Matches Only', type='text'), html.Button("Enter", id="btn-filter"),]
+
+
+
+# @app.callback(
+#     Output("suggested-matches-container", "children"),
+#     [Input("btn-suggest", "n_clicks")],
+#     [State("suggested-matches-container", "children")],
+# )
+# def update_suggested_matches(n_clicks, existing_state):
+#     if n_clicks is None or n_clicks == "":
+#         return existing_state
+#     if "mentors" not in __store__ or "mentees" not in __store__:
+#         return [
+#             html.Div(["Please upload or use mock data for both mentors and mentees."], className="alert alert-warning alert-dismissible fade show",)
+#         ]
+#     return [
+#         html.H2("Suggested Matches", className="mt-3 mb-1"),
+#         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+#         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
+#     ]
+
+
+
+
 
 # @app.callback(
 #     Output("suggested-matches-sorted-container", "children"),
@@ -357,21 +393,79 @@ def update_suggested_matches(n_clicks, existing_state):
 #         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
 #     ]
 
+# @app.callback(
+#     Output("suggested-matches-sorted-container", "children"),
+#     [Input("SORTBY", "value")],
+#     [State("suggested-matches-sorted-container", "children")],
+# )
+# def sort_suggested_matches(value_in, existing_state):
+#     if value_in is None:
+#         return existing_state
+
+#     if "mentors" not in __store__ or "mentees" not in __store__:
+#         return [
+#             html.Div(["Please upload or use mock data for both mentors and mentees."], className="alert alert-warning alert-dismissible fade show",)
+#         ]
+
+#     return [
+#         html.H2("Suggested Matches Sorted", className="mt-2 mb-1"),
+#         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+#         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), value_in))]),
+#     ]
+
+
+
+# @app.callback(
+#     Output("suggested-matches-sorted-container", "children"),
+#     [Input("btn-filter", "n_clicks")],
+#     [State("FILTER", "value"), State("get-specifics", "value"), State("suggested-matches-sorted-container", "children")],
+# )
+# def filter_suggested_matches(n_clicks, value_in_filter_type, value_in_specific, existing_state):
+#     if n_clicks is None or n_clicks == "":
+#         return existing_state
+
+#     if "mentors" not in __store__ or "mentees" not in __store__:
+#         return [
+#             html.Div(["Please upload or use mock data for both mentors and mentees."], className="alert alert-warning alert-dismissible fade show",)
+#         ]
+
+#     return [
+#         html.H2("Suggested Matches Filtered", className="mt-2 mb-1"),
+#         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+#         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.filter_by(get_matches(), value_in_filter_type,value_in_specific))]),
+#     ]
+
+
 @app.callback(
     Output("suggested-matches-sorted-container", "children"),
-    [Input("SORTBY", "value")],
-    [State("suggested-matches-sorted-container", "children")],
+    [Input("btn-filter", "n_clicks")],
+    [State("SORTBY", "value"), State("FILTER", "value"), State("get-specifics", "value"), State("suggested-matches-sorted-container", "children")],
 )
-def sort_suggested_matches(value_in, existing_state):
-    if value_in is None:
+def specific_suggested_matches(n_clicks, value_in_sort, value_in_filter_type, value_in_specific, existing_state):
+    if n_clicks is None or n_clicks == "":
         return existing_state
 
-    return [
-        html.H2("Suggested Matches Sorted", className="mt-2 mb-1"),
-        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
-        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), value_in))]),
-    ]
+    if "mentors" not in __store__ or "mentees" not in __store__:
+        return [
+            html.Div(["Please upload or use mock data for both mentors and mentees."], className="alert alert-warning alert-dismissible fade show",)
+        ]
 
+    final_matches=[]
+    if value_in_filter_type is None and value_in_sort is not None:
+        final_matches=recommender.sort_by(get_matches(), value_in_sort)
+    elif value_in_filter_type is not None and value_in_sort is not None:
+        final_matches=recommender.sort_by(get_matches(), value_in_sort)
+        final_matches=recommender.filter_by(final_matches, value_in_filter_type,value_in_specific)
+    elif value_in_filter_type is not None and value_in_sort is None:
+        final_matches=recommender.filter_by(get_matches(), value_in_filter_type,value_in_specific)
+    elif value_in_filter_type is None and value_in_sort is None:
+        final_matches=recommender.sort_by(get_matches(), "score")
+
+    return [
+        html.H2("Suggested Matches Both", className="mt-2 mb-1"),
+        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+        html.Div([suggestion_to_dash(s, i) for i, s in enumerate(final_matches)]),
+    ]
 
 if __name__ == "__main__":
     # sanity_check()

@@ -104,6 +104,35 @@ def generate_match_suggestions(df1, df2, options={}):
 
     return list(match_suggestions)
 
+def filter_by(matches, para, specific):
+    filtered_matches=[]
+    if (para=="mentorName"):
+        for match in matches:
+            if match[1]["name"]==specific:
+                filtered_matches.append(match)
+    
+    if (para=="score"):
+        for match in matches:
+            if match[0]>=specific:
+                filtered_matches.append(match)
+
+    if (para=="menteeName"):
+        for match in matches:
+            if match[2]["name"]==specific:
+                filtered_matches.append(match)
+    if (para=="ethnicity"):
+        for match in matches:
+            if match[3]['ethnicity_match']==1:
+                filtered_matches.append(match)
+    if (para=="distance"):
+        for match in matches:
+            if match[3]['distance_in_miles']<=float(specific):
+                filtered_matches.append(match)
+
+    return filtered_matches
+
+
+
 
 
 def sort_by(matches,para):
