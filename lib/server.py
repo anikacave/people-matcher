@@ -177,7 +177,8 @@ def root_layout():
                                 {'label': u'By Mentee', 'value': 'menteeName'},
                                 {'label': u'By Score', 'value': 'score'},
                                 {'label': u'Max Distance', 'value': 'distance'},
-                                {'label': u'Ethnicity Match', 'value': 'ethnicity'}
+                                {'label': u'Ethnicity Match', 'value': 'ethnicity'},
+                                {'label': u'None', 'value': 'none'}
                             ],
                             id='FILTER'
                         ),
@@ -340,19 +341,21 @@ def get_specifics_filtering(value_in, existing_state):
         return existing_state
     
     if value_in == "mentorName":
-        return [html.H3("Enter Mentor Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+        return [html.H3("Enter Mentor Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
 
     if value_in == "menteeName":
-        return [html.H3("Enter Mentee Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+        return [html.H3("Enter Mentee Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
     
     if value_in == "score":
-        return [html.H3("Enter Minimum Score:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+        return [html.H3("Enter Minimum Score:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
 
     if value_in == "distance":
-        return [html.H3("Enter Maximum Distance:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),html.Button("Enter", id="btn-filter"),]
+        return [html.H3("Enter Maximum Distance:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
 
     if value_in == "ethnicity":
-        return [html.H3("Only Display Matches with the Same Ethnicity"), dcc.Input(id='get-specifics', value='Ethnicity Matches Only', type='text'), html.Button("Enter", id="btn-filter"),]
+        return [html.H3("Only Display Matches with the Same Ethnicity"), dcc.Input(id='get-specifics', value='Ethnicity Matches Only', type='text'),]
+    if value_in == "none":
+        return [html.H3("No Filtering"), dcc.Input(id='get-specifics', value='None', type='text'),]
 
 
 
@@ -451,14 +454,14 @@ def specific_suggested_matches(n_clicks, value_in_sort, value_in_filter_type, va
         ]
 
     final_matches=[]
-    if value_in_filter_type is None and value_in_sort is not None:
+    if (value_in_filter_type is None or value_in_filter_type =="none") and value_in_sort is not None:
         final_matches=recommender.sort_by(get_matches(), value_in_sort)
     elif value_in_filter_type is not None and value_in_sort is not None:
         final_matches=recommender.sort_by(get_matches(), value_in_sort)
         final_matches=recommender.filter_by(final_matches, value_in_filter_type,value_in_specific)
     elif value_in_filter_type is not None and value_in_sort is None:
         final_matches=recommender.filter_by(get_matches(), value_in_filter_type,value_in_specific)
-    elif value_in_filter_type is None and value_in_sort is None:
+    elif (value_in_filter_type is None or value_in_filter_type =="none") and value_in_sort is None:
         final_matches=recommender.sort_by(get_matches(), "score")
 
     return [
