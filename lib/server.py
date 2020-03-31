@@ -270,12 +270,6 @@ def download_csv():
 
 
 
-# def get_specifics_filtering(value_in, existing_state):
-#     if value_in is None:
-#         return existing_state
-
-
-
 @app.callback(
     Output("mentees-table", "children"),
     [Input("mentees-mock-checklist", "value"), Input("mentees-uploader", "contents")],
