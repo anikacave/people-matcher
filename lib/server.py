@@ -11,6 +11,7 @@ import dash_html_components as html
 import dash
 import dash_table
 from flask import Flask
+from flask import Flask, send_file
 from dash import Dash
 from dash.dependencies import Input, State, Output
 import sys
@@ -153,9 +154,14 @@ def root_layout():
                         children=[
                             # html.Button("Suggest All Matches", id="btn-suggest"),
                             # html.Button("Get Specific Matches", id="btn-suggest-specific"),
-                            
+                            # html.Button("Download CSV File", id="down-csv-file"),
+                            dcc.Link('Download CSV file', href='/download', refresh = True),
                         ],
                     ),
+
+
+
+
                     html.Div(
                         children=[
                         html.Label('Sort By'),
@@ -208,6 +214,19 @@ def root_layout():
                             
                         ],
                     ),
+                    #The original downloading button I made, container
+                    # html.Div(
+                    #     className="row",
+                    #     children=[
+                            
+                    #         html.Div(
+                    #             children=[],
+                    #             id="dowloading-container",
+                    #             className="col text-center",
+                    #         )
+                            
+                    #     ],
+                    # ),
                 ],
             ),
         ],
@@ -215,6 +234,46 @@ def root_layout():
 
 
 app.layout = root_layout()
+
+
+
+#This all goes with the original downloading button that I added
+
+# @app.callback(
+#     Output("dowloading-container", "children"),
+#     [Input("down-csv-file", "n_clicks")],
+#     [State("dowloading-container", "children")],
+
+# )
+
+
+
+# def dowloading_csv(n_clicks, existing_state):
+#     if n_clicks is None or n_clicks == "":
+#         return existing_state
+
+#     return [html.H3("Downloading..."),]
+    
+
+
+
+@server.route("/download")
+def download_csv():
+    return send_file('downloadFile.csv',
+                        mimetype='text/csv',
+                        attachment_filename='downloadFile.csv',
+                        as_attachment=True) 
+                        #change the path of the file/return multiple
+                        #just a random test file I made downloading on click
+
+
+
+
+
+# def get_specifics_filtering(value_in, existing_state):
+#     if value_in is None:
+#         return existing_state
+
 
 
 @app.callback(
