@@ -31,6 +31,7 @@ external_scripts = [
 server = Flask(__name__)
 matches = []
 
+
 @server.route("/health")
 def index():
     return "hellow world"
@@ -39,7 +40,6 @@ def index():
 app = Dash(
     server=server, url_base_pathname="/", external_stylesheets=external_stylesheets
 )
-
 
 
 def uploader(id="uploader"):
@@ -138,14 +138,14 @@ def root_layout():
             html.Section(
                 className="jumbotron text-center",
                 children=[
-                    html.H1("People Matcher", className="text-center jumbotron-heading"),
+                    html.H1(
+                        "People Matcher", className="text-center jumbotron-heading"
+                    ),
                 ],
             ),
             html.Div(
                 className="row", children=[mentees_data_table(), mentors_data_table()]
             ),
-            
-
             html.Section(
                 className="jumbotron",
                 children=[
@@ -155,76 +155,76 @@ def root_layout():
                             # html.Button("Suggest All Matches", id="btn-suggest"),
                             # html.Button("Get Specific Matches", id="btn-suggest-specific"),
                             # html.Button("Download CSV File", id="down-csv-file"),
-                            dcc.Link('Download CSV file', href='/download', refresh = True),
+                            dcc.Link(
+                                "Download CSV file", href="/download", refresh=True
+                            ),
                         ],
                     ),
-
-
-
-
                     html.Div(
                         children=[
-                        html.Label('Sort By'),
-                            dcc.Dropdown(style={'textAlign': 'center',},
-                            options=[
-                                {'label': u'Mentor Name', 'value': 'mentorName'},
-                                {'label': u'Mentee Name', 'value': 'menteeName'},
-                                {'label': u'Score', 'value': 'score'},
-                                {'label': u'Distance', 'value': 'distance'},
-                                {'label': u'Ethinicity Match', 'value': 'ethnicity'}
-                            ],
-                            id='SORTBY',
-                            placeholder="Select"
-                        ),
-                        html.Label('Filter By'),
-                        dcc.RadioItems(
-                            options=[
-                                {'label': 'By Mentor', 'value': 'mentorName'},
-                                {'label': u'By Mentee', 'value': 'menteeName'},
-                                {'label': u'By Score', 'value': 'score'},
-                                {'label': u'Max Distance', 'value': 'distance'},
-                                {'label': u'Ethnicity Match', 'value': 'ethnicity'},
-                                {'label': u'None', 'value': 'none'}
-                            ],
-                            id='FILTER'
-                        ),
-                        html.Div(
-                                children=[html.H3("Used For Filtering:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),],
+                            html.Label("Sort By"),
+                            dcc.Dropdown(
+                                style={"textAlign": "center",},
+                                options=[
+                                    {"label": "Mentor Name", "value": "mentorName"},
+                                    {"label": "Mentee Name", "value": "menteeName"},
+                                    {"label": "Score", "value": "score"},
+                                    {"label": "Distance", "value": "distance"},
+                                    {"label": "Ethinicity Match", "value": "ethnicity"},
+                                ],
+                                id="SORTBY",
+                                placeholder="Select",
+                            ),
+                            html.Label("Filter By"),
+                            dcc.RadioItems(
+                                options=[
+                                    {"label": "By Mentor", "value": "mentorName"},
+                                    {"label": "By Mentee", "value": "menteeName"},
+                                    {"label": "By Score", "value": "score"},
+                                    {"label": "Max Distance", "value": "distance"},
+                                    {"label": "Ethnicity Match", "value": "ethnicity"},
+                                    {"label": "None", "value": "none"},
+                                ],
+                                id="FILTER",
+                            ),
+                            html.Div(
+                                children=[
+                                    html.H3("Used For Filtering:"),
+                                    dcc.Input(
+                                        id="get-specifics",
+                                        value="Enter Here",
+                                        type="text",
+                                    ),
+                                ],
                                 id="get-specifics-container",
                                 className="col text-center",
                             ),
-                        # dcc.Input(id='get-specifics', value='initial value', type='text'),
-                        html.Div(
-                        html.Button("Get Matches", id="btn-filter"),
-                        className="col text-center",
-                        ),
-                        
+                            # dcc.Input(id='get-specifics', value='initial value', type='text'),
+                            html.Div(
+                                html.Button("Get Matches", id="btn-filter"),
+                                className="col text-center",
+                            ),
                         ]
-                    
                     ),
                     html.Div(
                         className="row",
                         children=[
-                            
                             html.Div(
                                 children=[],
                                 id="suggested-matches-sorted-container",
                                 className="col text-center",
                             )
-                            
                         ],
                     ),
-                    #The original downloading button I made, container
+                    # The original downloading button I made, container
                     # html.Div(
                     #     className="row",
                     #     children=[
-                            
                     #         html.Div(
                     #             children=[],
                     #             id="dowloading-container",
                     #             className="col text-center",
                     #         )
-                            
                     #     ],
                     # ),
                 ],
@@ -235,9 +235,7 @@ def root_layout():
 
 app.layout = root_layout()
 
-
-
-#This all goes with the original downloading button that I added
+# This all goes with the original downloading button that I added
 
 # @app.callback(
 #     Output("dowloading-container", "children"),
@@ -247,34 +245,29 @@ app.layout = root_layout()
 # )
 
 
-
 # def dowloading_csv(n_clicks, existing_state):
 #     if n_clicks is None or n_clicks == "":
 #         return existing_state
 
 #     return [html.H3("Downloading..."),]
-    
-
 
 
 @server.route("/download")
 def download_csv():
-    return send_file('downloadFile.csv',
-                        mimetype='text/csv',
-                        attachment_filename='downloadFile.csv',
-                        as_attachment=True) 
-                        #change the path of the file/return multiple
-                        #just a random test file I made downloading on click
-
-
-
+    return send_file(
+        "downloadFile.csv",
+        mimetype="text/csv",
+        attachment_filename="downloadFile.csv",
+        as_attachment=True,
+    )
+    # change the path of the file/return multiple
+    # just a random test file I made downloading on click
 
 
 @app.callback(
     Output("mentees-table", "children"),
     [Input("mentees-mock-checklist", "value"), Input("mentees-uploader", "contents")],
     [State("mentees-table", "children")],
-
 )
 def update_mentees_table(value_list, file_content, existing_state):
     if "mentees-use-mock-data" in value_list:
@@ -328,40 +321,51 @@ def update_mentors_table(value_list, file_content, existing_state):
                 "Cannot understand the uploaded file.", className="text-danger"
             )
 
+
 def suggestion_to_dash(s, index):
-        return html.Div(
-            id="suggestion-{}".format(index),
-            className="card",
-            children=html.Div(
-                children=[
-                    html.Div(
-                        className="col-4",
-                        children=[
-                            html.H3("Mentee: " + s[2]["name"]),
-                            html.Div(s[2]["address"]),
-                        ],
-                    ),
-                    html.Div(
-                        className="col-4",
-                        children=[
-                            html.Div(f"Score: {s[0]:.3f}"),
-                            html.Div(f"{s[3]['distance_in_miles']:.1f} miles"),
-                            html.Div(f"ethnicity match: {s[3]['ethnicity_match']}"),
-                            html.Button("👍", className="btn btn-sm"),
-                            html.Button("👎", className="btn btn-sm"),
-                        ],
-                    ),
-                    html.Div(
-                        className="col-4",
-                        children=[
-                            html.H3("Mentor: " + s[1]["name"]),
-                            html.Div(s[1]["address"]),
-                        ],
-                    ),
-                ],
-                className="row",
-            ),
-        )
+    return html.Div(
+        id=f"suggestion-{index}",
+        className="card",
+        children=html.Div(
+            children=[
+                html.Div(
+                    className="col-4",
+                    children=[
+                        html.H3("Mentee: " + s[2]["name"]),
+                        html.Div(s[2]["address"]),
+                    ],
+                ),
+                html.Div(
+                    className="col-4",
+                    children=[
+                        html.Div(f"Score: {s[0]:.3f}"),
+                        html.Div(f"{s[3]['distance_in_miles']:.1f} miles"),
+                        html.Div(f"ethnicity match: {s[3]['ethnicity_match']}"),
+                        html.Button(
+                            "👍",
+                            id=f"btn-suggestion-thumbup-{index}",
+                            className="btn btn-sm",
+                            style={"fontSize": "2rem"},
+                        ),
+                        html.Button(
+                            "👎",
+                            id=f"btn-suggestion-thumbdown-{index}",
+                            className="btn btn-sm",
+                            style={"fontSize": "2rem"},
+                        ),
+                    ],
+                ),
+                html.Div(
+                    className="col-4",
+                    children=[
+                        html.H3("Mentor: " + s[1]["name"]),
+                        html.Div(s[1]["address"]),
+                    ],
+                ),
+            ],
+            className="row",
+        ),
+    )
 
 
 def create_matches():
@@ -375,11 +379,12 @@ def create_matches():
         __store__["mentors"],  # .head(2),
         __store__["mentees"],  # .head(2),
     )
-    matches=match_suggestions
+    matches = match_suggestions
     return matches
 
+
 def get_matches():
-    if len(matches)==0:
+    if len(matches) == 0:
         return create_matches()
     return matches
 
@@ -392,24 +397,41 @@ def get_matches():
 def get_specifics_filtering(value_in, existing_state):
     if value_in is None:
         return existing_state
-    
+
     if value_in == "mentorName":
-        return [html.H3("Enter Mentor Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
+        return [
+            html.H3("Enter Mentor Name:"),
+            dcc.Input(id="get-specifics", value="Enter Here", type="text"),
+        ]
 
     if value_in == "menteeName":
-        return [html.H3("Enter Mentee Name:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
-    
+        return [
+            html.H3("Enter Mentee Name:"),
+            dcc.Input(id="get-specifics", value="Enter Here", type="text"),
+        ]
+
     if value_in == "score":
-        return [html.H3("Enter Minimum Score:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
+        return [
+            html.H3("Enter Minimum Score:"),
+            dcc.Input(id="get-specifics", value="Enter Here", type="text"),
+        ]
 
     if value_in == "distance":
-        return [html.H3("Enter Maximum Distance:"), dcc.Input(id='get-specifics', value='Enter Here', type='text'),]
+        return [
+            html.H3("Enter Maximum Distance:"),
+            dcc.Input(id="get-specifics", value="Enter Here", type="text"),
+        ]
 
     if value_in == "ethnicity":
-        return [html.H3("Only Display Matches with the Same Ethnicity"), dcc.Input(id='get-specifics', value='Ethnicity Matches Only', type='text'),]
+        return [
+            html.H3("Only Display Matches with the Same Ethnicity"),
+            dcc.Input(id="get-specifics", value="Ethnicity Matches Only", type="text"),
+        ]
     if value_in == "none":
-        return [html.H3("No Filtering"), dcc.Input(id='get-specifics', value='None', type='text'),]
-
+        return [
+            html.H3("No Filtering"),
+            dcc.Input(id="get-specifics", value="None", type="text"),
+        ]
 
 
 # @app.callback(
@@ -429,9 +451,6 @@ def get_specifics_filtering(value_in, existing_state):
 #         #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
 #         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(recommender.sort_by(get_matches(), "mentorName"))]),
 #     ]
-
-
-
 
 
 # @app.callback(
@@ -470,7 +489,6 @@ def get_specifics_filtering(value_in, existing_state):
 #     ]
 
 
-
 # @app.callback(
 #     Output("suggested-matches-sorted-container", "children"),
 #     [Input("btn-filter", "n_clicks")],
@@ -495,36 +513,54 @@ def get_specifics_filtering(value_in, existing_state):
 @app.callback(
     Output("suggested-matches-sorted-container", "children"),
     [Input("btn-filter", "n_clicks")],
-    [State("SORTBY", "value"), State("FILTER", "value"), State("get-specifics", "value"), State("suggested-matches-sorted-container", "children")],
+    [
+        State("SORTBY", "value"),
+        State("FILTER", "value"),
+        State("get-specifics", "value"),
+        State("suggested-matches-sorted-container", "children"),
+    ],
 )
-def specific_suggested_matches(n_clicks, value_in_sort, value_in_filter_type, value_in_specific, existing_state):
+def specific_suggested_matches(
+    n_clicks, value_in_sort, value_in_filter_type, value_in_specific, existing_state
+):
     if n_clicks is None or n_clicks == "":
         return existing_state
 
     if "mentors" not in __store__ or "mentees" not in __store__:
         return [
-            html.Div(["Please upload or use mock data for both mentors and mentees."], className="alert alert-warning alert-dismissible fade show",)
+            html.Div(
+                ["Please upload or use mock data for both mentors and mentees."],
+                className="alert alert-warning alert-dismissible fade show",
+            )
         ]
 
-    final_matches=[]
-    if (value_in_filter_type is None or value_in_filter_type =="none") and value_in_sort is not None:
-        final_matches=recommender.sort_by(get_matches(), value_in_sort)
+    final_matches = []
+    if (
+        value_in_filter_type is None or value_in_filter_type == "none"
+    ) and value_in_sort is not None:
+        final_matches = recommender.sort_by(get_matches(), value_in_sort)
     elif value_in_filter_type is not None and value_in_sort is not None:
-        final_matches=recommender.sort_by(get_matches(), value_in_sort)
-        final_matches=recommender.filter_by(final_matches, value_in_filter_type,value_in_specific)
+        final_matches = recommender.sort_by(get_matches(), value_in_sort)
+        final_matches = recommender.filter_by(
+            final_matches, value_in_filter_type, value_in_specific
+        )
     elif value_in_filter_type is not None and value_in_sort is None:
-        final_matches=recommender.filter_by(get_matches(), value_in_filter_type,value_in_specific)
-    elif (value_in_filter_type is None or value_in_filter_type =="none") and value_in_sort is None:
-        final_matches=recommender.sort_by(get_matches(), "score")
+        final_matches = recommender.filter_by(
+            get_matches(), value_in_filter_type, value_in_specific
+        )
+    elif (
+        value_in_filter_type is None or value_in_filter_type == "none"
+    ) and value_in_sort is None:
+        final_matches = recommender.sort_by(get_matches(), "score")
 
     return [
         html.H2("Suggested Matches Both", className="mt-2 mb-1"),
-        #html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
+        # html.Div([suggestion_to_dash(s, i) for i, s in enumerate(sorted(matches, key=lambda s: s[2]["name"]))])
         html.Div([suggestion_to_dash(s, i) for i, s in enumerate(final_matches)]),
     ]
+
 
 if __name__ == "__main__":
     # sanity_check()
     db.init_db()
     app.run_server(host="0.0.0.0", debug=True)
-
