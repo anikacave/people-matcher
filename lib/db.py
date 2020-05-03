@@ -1,10 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, JSON
+from sqlalchemy import Column, String, JSON, ForeignKey, Boolean
 from sqlalchemy.orm import sessionmaker
 import os
 from sqlalchemy.exc import OperationalError
 import time
+from lib.db_utils import ChoiceType
 
 
 base = declarative_base()
@@ -48,6 +49,25 @@ class GeocodeResult(base):
         obj = GeocodeResult(input_hash=input_hash, output=output)
         self.sess.add(obj)
         self.sess.commit()
+
+
+class Person(base):
+
+    __tablename__ = "persons"
+    id = Column(String, primary_key=True)
+    first_name = Column(String)
+    last_name = Column(String)
+    address = Column(String)
+    role = ChoiceType({"mentor": "mentor", "mentee": "mentee"})
+
+
+class Match(base):
+
+    __tablename__ = "matches"
+    mentor_id = Column(String, ForeignKey("persons.id"), primary_key=True)
+    mentee_id = Column(String, ForeignKey("persons.id"), primary_key=True)
+    machine_suggested = Column(Boolean)
+    confirmed = Column(Boolean)
 
 
 def init_db():

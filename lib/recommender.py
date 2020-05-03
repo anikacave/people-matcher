@@ -4,6 +4,7 @@ import numpy as np
 import base64
 import datetime
 import io
+import json
 
 from lib.geo import geocode, get_distance
 from lib.data_utils import (
@@ -65,12 +66,13 @@ def get_match_scores(query_row, df):
 
 def generate_match_suggestions(df1, df2, options={}):
     """
+    df1: mentors
+    df2: mentees
+
     options: max_dinstance etc.
     """
-
-    """
-    Do stuff IDK
-    """
+    print("generate_match_suggestions:")
+    print(df1[["name", "address"]].head(2))
     address_col1 = find_address_column(df1)
     assert address_col1 is not None, "Which column is address? {}".format(df1.columns)
     address_col2 = find_address_column(df2)
@@ -83,70 +85,145 @@ def generate_match_suggestions(df1, df2, options={}):
     df2 = df2.assign(_point=[l.point for l in locations2])
     df2 = df2.assign(**{"_lat": [l.latitude for l in locations2]})
     df2 = df2.assign(**{"_lon": [l.longitude for l in locations2]})
+    print(df1[["name", "address"]].head(2))
     match_suggestions = []
     min_score = -100
     for _, row1 in df1.iterrows():
         score_objs = get_match_scores(row1, df2)
         for i, score_obj in enumerate(score_objs):
             # filter by race if race option enabled
-            if("race" in options):
-                if(options["race"] and not score_obj["features"]["ethnicity_match"]):
+            if "race" in options:
+                if options["race"] and not score_obj["features"]["ethnicity_match"]:
                     continue
-
 
             # filter by score
             if score_obj["score"] > min_score:
+                status = "suggested"
+                row2 = df2.iloc[i]
                 match_suggestions.append(
-                    (score_obj["score"], row1, df2.iloc[i], score_obj["features"])
+                    dict(
+                        score=score_obj["score"],
+                        mentor_id=row1["id"],
+                        mentor_name=row1[
+                            "name"
+                        ],  # using row1.name has strange side effects..
+                        mentor_address=row1.address,
+                        mentor_ethnicity=row1.ethnicity,
+                        mentee_id=row2["id"],
+                        mentee_name=row2["name"],
+                        mentee_address=row2.address,
+                        mentee_ethnicity=row2.ethnicity,
+                        status=status,
+                        features=json.dumps(score_obj["features"]),
+                    )
                 )
 
-    match_suggestions = sorted(match_suggestions, key=lambda s: -s[0])
+    match_suggestions = pd.DataFrame(match_suggestions)
+    match_suggestions = match_suggestions.sort_values(by="score", ascending=False)
+    match_suggestions = match_suggestions.reset_index(drop=True)
 
-    return list(match_suggestions)
+    print(match_suggestions[["mentor_id", "mentor_name", "mentee_name"]].head(3))
+
+    return match_suggestions
+
 
 def filter_by(matches, para, specific):
-    filtered_matches=[]
-    if (para=="mentorName"):
+    filtered_matches = []
+    if para == "mentorName":
         for match in matches:
-            if match[1]["name"]==specific:
-                filtered_matches.append(match)
-    
-    if (para=="score"):
-        for match in matches:
-            if match[0]>=specific:
+            if match[1]["name"] == specific:
                 filtered_matches.append(match)
 
-    if (para=="menteeName"):
+    if para == "score":
         for match in matches:
-            if match[2]["name"]==specific:
+            if match[0] >= specific:
                 filtered_matches.append(match)
-    if (para=="ethnicity"):
+
+    if para == "menteeName":
         for match in matches:
-            if match[3]['ethnicity_match']==1:
+            if match[2]["name"] == specific:
                 filtered_matches.append(match)
-    if (para=="distance"):
+    if para == "ethnicity":
         for match in matches:
-            if match[3]['distance_in_miles']<=float(specific):
+            if match[3]["ethnicity_match"] == 1:
+                filtered_matches.append(match)
+    if para == "distance":
+        for match in matches:
+            if match[3]["distance_in_miles"] <= float(specific):
                 filtered_matches.append(match)
 
     return filtered_matches
 
 
+def sort_by(matches, para):
+    if para == "mentorName":
+        return sorted(matches, key=lambda s: s[1]["name"])
+    if para == "score":
+        return sorted(matches, key=lambda s: -s[0])
+    if para == "menteeName":
+        return sorted(matches, key=lambda s: s[2]["name"])
+    if para == "ethnicity":
+        return sorted(matches, key=lambda s: -s[3]["ethnicity_match"])
+    if para == "distance":
+        return sorted(matches, key=lambda s: s[3]["distance_in_miles"])
 
 
+class DataStore:
+    def __init__(self):
+        self.__matches = None
+        self.mentors = None
+        self.mentees = None
 
-def sort_by(matches,para):
-    if (para=="mentorName"):
-       return sorted(matches, key=lambda s: s[1]["name"])
-    if (para=="score"):
-       return sorted(matches, key=lambda s: -s[0])
-    if (para=="menteeName"):
-       return sorted(matches, key=lambda s: s[2]["name"])
-    if (para=="ethnicity"):
-        return sorted(matches, key=lambda s: -s[3]['ethnicity_match'])
-    if (para=="distance"):
-        return sorted(matches, key=lambda s: s[3]['distance_in_miles'])
-    
+    def set_mentors(self, df):
+        self.mentors = df
+
+    def set_mentees(self, df):
+        self.mentees = df
+
+    def matches(self, recompute=False):
+        if not recompute and self.__matches is not None:
+            return self.__matches
+        print("re-computing suggestions")
+        self.__matches = generate_match_suggestions(self.mentors, self.mentees)
+        return self.__matches
+
+    def matches_to_show(
+        self, status="sugggested", sort_by=None, filter_key=None, filter_value=None
+    ):
+        df = self.matches()
+        df = df[df.status == status]
+        if filter_key is not None and filter_value is not None:
+            df = df[df["filter_key"] == filter_value].reset_index(drop=True)
+        if sort_by is not None:
+            df = df.sort_values(by=sort_by).reset_index(drop=True)
+        return df
+
+    def confirm_match(self, mentor_id, mentee_id):
+        df = self.matches()
+        rows = [r for _, r in df.iterrows()]
+        for row in rows:
+            if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
+                row["status"] = "confirmed"
+        self.__matches = pd.DataFrame(rows)
+
+    def unconfirm_match(self, mentor_id, mentee_id):
+        pass
+
+    def reject_match(self, mentor_id, mentee_id):
+        df = self.matches()
+        rows = [r for _, r in df.iterrows()]
+        for row in rows:
+            if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
+                row["status"] = "rejected"
+        self.__matches = pd.DataFrame(rows)
+
+    @property
+    def mock_mentors(self):
+        return load_mock_mentors()
+
+    @property
+    def mock_mentees(self):
+        return load_mock_mentees()
 
 
 def sanity_check():

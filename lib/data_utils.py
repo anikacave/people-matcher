@@ -52,7 +52,7 @@ def parse_uploaded_content(content, apply_geocoder=True):
 
 
 def load_mock_mentors():
-    return pd.DataFrame(
+    df = pd.DataFrame(
         [
             # TODO: 3201 Bee Caves Rd Ste 120, Austin, TX 78746 does not work.
             {
@@ -92,10 +92,12 @@ def load_mock_mentors():
             },
         ]
     ).head(3)
+    df["id"] = df.name
+    return df
 
 
 def load_mock_mentees():
-    return pd.DataFrame(
+    df = pd.DataFrame(
         [
             # {
             #     "name": "Cathy",
@@ -122,3 +124,5 @@ def load_mock_mentees():
             {"name": "Helen", "address": "10525 W Parmer Ln, Austin, TX 78717"},
         ]
     ).head(4)
+    df["id"] = df.name.tolist()
+    return df
