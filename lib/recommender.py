@@ -122,50 +122,7 @@ def generate_match_suggestions(df1, df2, options={}):
     match_suggestions = match_suggestions.sort_values(by="score", ascending=False)
     match_suggestions = match_suggestions.reset_index(drop=True)
 
-    print(match_suggestions[["mentor_id", "mentor_name", "mentee_name"]].head(3))
-
     return match_suggestions
-
-
-def filter_by(matches, para, specific):
-    filtered_matches = []
-    if para == "mentorName":
-        for match in matches:
-            if match[1]["name"] == specific:
-                filtered_matches.append(match)
-
-    if para == "score":
-        for match in matches:
-            if match[0] >= specific:
-                filtered_matches.append(match)
-
-    if para == "menteeName":
-        for match in matches:
-            if match[2]["name"] == specific:
-                filtered_matches.append(match)
-    if para == "ethnicity":
-        for match in matches:
-            if match[3]["ethnicity_match"] == 1:
-                filtered_matches.append(match)
-    if para == "distance":
-        for match in matches:
-            if match[3]["distance_in_miles"] <= float(specific):
-                filtered_matches.append(match)
-
-    return filtered_matches
-
-
-def sort_by(matches, para):
-    if para == "mentorName":
-        return sorted(matches, key=lambda s: s[1]["name"])
-    if para == "score":
-        return sorted(matches, key=lambda s: -s[0])
-    if para == "menteeName":
-        return sorted(matches, key=lambda s: s[2]["name"])
-    if para == "ethnicity":
-        return sorted(matches, key=lambda s: -s[3]["ethnicity_match"])
-    if para == "distance":
-        return sorted(matches, key=lambda s: s[3]["distance_in_miles"])
 
 
 class DataStore:
@@ -192,8 +149,26 @@ class DataStore:
     ):
         df = self.matches()
         df = df[df.status == status]
-        if filter_key is not None and filter_value is not None:
-            df = df[df["filter_key"] == filter_value].reset_index(drop=True)
+        rows = [r for _, r in df.iterrows()]
+        feature_list = [json.loads(r.features) for r in rows]
+        df["distance"] = [f.get("distance_in_miles", 1000) for f in feature_list]
+        df["ethnicity_match"] = [f.get("ethnicity_match", -1) for f in feature_list]
+        if (
+            filter_key is not None
+            and filter_key != "none"
+            and filter_value is not None
+            and len(str(filter_value)) > 0
+        ):
+            if filter_key == "distance":
+                try:
+                    max_distance = float(filter_value)
+                except:
+                    max_distance = 1000
+                df = df[df.distance < max_distance]
+            else:
+                df = df[df[filter_key].astype(str) == str(filter_value)].reset_index(
+                    drop=True
+                )
         if sort_by is not None:
             df = df.sort_values(by=sort_by).reset_index(drop=True)
         return df

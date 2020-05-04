@@ -100,8 +100,8 @@ def get_layout():
         id="app",
         className="container",
         children=[
-            dcc.Input(id="thumb_btn_timestamp", value=""),
-            html.Div(id="thumb_btn_timestamp_debug"),
+            dcc.Input(id="thumb_btn_timestamp", value="", style={"display": "none"}),
+            html.Div(id="thumb_btn_timestamp_debug", style={"display": "none"}),
             html.Section(
                 className="jumbotron text-center",
                 children=[
@@ -131,8 +131,8 @@ def get_layout():
                             dcc.Dropdown(
                                 style={"textAlign": "center",},
                                 options=[
-                                    {"label": "Mentor Name", "value": "mentorName"},
-                                    {"label": "Mentee Name", "value": "menteeName"},
+                                    {"label": "Mentor Name", "value": "mentor_name"},
+                                    {"label": "Mentee Name", "value": "mentee_name"},
                                     {"label": "Score", "value": "score"},
                                     {"label": "Distance", "value": "distance"},
                                     {"label": "Ethinicity Match", "value": "ethnicity"},
@@ -143,8 +143,8 @@ def get_layout():
                             html.Label("Filter By"),
                             dcc.RadioItems(
                                 options=[
-                                    {"label": "By Mentor", "value": "mentorName"},
-                                    {"label": "By Mentee", "value": "menteeName"},
+                                    {"label": "By Mentor", "value": "mentor_name"},
+                                    {"label": "By Mentee", "value": "mentee_name"},
                                     {"label": "By Score", "value": "score"},
                                     {"label": "Max Distance", "value": "distance"},
                                     {"label": "Ethnicity Match", "value": "ethnicity"},
@@ -312,13 +312,13 @@ def get_specifics_filtering(value_in, existing_state):
     if value_in is None:
         return existing_state
 
-    if value_in == "mentorName":
+    if value_in == "mentor_name":
         return [
             html.H3("Enter Mentor Name:"),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
-    if value_in == "menteeName":
+    if value_in == "mentee_name":
         return [
             html.H3("Enter Mentee Name:"),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
@@ -371,25 +371,6 @@ def matches_table(
         filter_value=value_in_specific,
     )
 
-    # final_matches = []
-    # if (
-    #     value_in_filter_type is None or value_in_filter_type == "none"
-    # ) and value_in_sort is not None:
-    #     final_matches = recommender.sort_by(get_matches(), value_in_sort)
-    # elif value_in_filter_type is not None and value_in_sort is not None:
-    #     final_matches = recommender.sort_by(get_matches(), value_in_sort)
-    #     final_matches = recommender.filter_by(
-    #         final_matches, value_in_filter_type, value_in_specific
-    #     )
-    # elif value_in_filter_type is not None and value_in_sort is None:
-    #     final_matches = recommender.filter_by(
-    #         get_matches(), value_in_filter_type, value_in_specific
-    #     )
-    # elif (
-    #     value_in_filter_type is None or value_in_filter_type == "none"
-    # ) and value_in_sort is None:
-    #     final_matches = recommender.sort_by(get_matches(), "score")
-
     return [
         suggestion_to_dash(s, i) for i, (_, s) in enumerate(final_matches.iterrows())
     ]
@@ -414,21 +395,18 @@ def thumb_btn_timestamp_debug(v):
         Input("btn-filter", "n_clicks_timestamp"),
         Input("matches-tabs", "value"),
         Input("thumb_btn_timestamp", "value"),
+        Input("SORTBY", "value"),
+        Input("get-specifics", "value"),
     ],
-    [
-        State("SORTBY", "value"),
-        State("FILTER", "value"),
-        State("get-specifics", "value"),
-        State("matches-sorted-container", "children"),
-    ],
+    [State("FILTER", "value"), State("matches-sorted-container", "children"),],
 )
 def update_matches_view(
     btn_filter_timestamp,
     tab,
     thumb_btn_timestamp,
     value_in_sort,
-    value_in_filter_type,
     value_in_specific,
+    value_in_filter_type,
     existing_state,
 ):
     title = f"{tab} Matches"
