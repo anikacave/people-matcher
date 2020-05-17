@@ -164,7 +164,11 @@ class DataStore:
                     max_distance = float(filter_value)
                 except:
                     max_distance = 1000
-                df = df[df.distance < max_distance]
+                df = df[df["distance"].astype(float) < max_distance]
+            elif filter_key=="ethnicity_match":
+                df = df[df["ethnicity_match"].astype(int)==1]
+            elif filter_key=="score":
+                df = df[df["score"].astype(str)>=str(filter_value)]
             else:
                 df = df[df[filter_key].astype(str) == str(filter_value)].reset_index(
                     drop=True
