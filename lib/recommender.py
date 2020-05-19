@@ -174,7 +174,10 @@ class DataStore:
                     drop=True
                 )
         if sort_by is not None:
-            df = df.sort_values(by=sort_by).reset_index(drop=True)
+            if sort_by == "ethnicity_match":
+                df=df.sort_values(by="ethnicity_match", ascending=False).reset_index(drop=True)
+            else:
+                df = df.sort_values(by=sort_by).reset_index(drop=True)
         return df
 
     def confirm_match(self, mentor_id, mentee_id):

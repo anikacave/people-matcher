@@ -135,7 +135,7 @@ def get_layout():
                                     {"label": "Mentee Name", "value": "mentee_name"},
                                     {"label": "Score", "value": "score"},
                                     {"label": "Distance", "value": "distance"},
-                                    {"label": "Ethnicity Match", "value": "ethnicity"},
+                                    {"label": "Ethnicity Match", "value": "ethnicity_match"},
                                 ],
                                 id="SORTBY",
                                 placeholder="Select",
