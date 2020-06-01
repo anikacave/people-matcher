@@ -38,7 +38,7 @@ def matches_sorted_container():
                 value="suggested",
                 children=[
                     dcc.Tab(
-                        label="Sugggested",
+                        label="Suggested",
                         value="suggested",
                         style=tab_style,
                         selected_style=tab_selected_style,
@@ -117,11 +117,11 @@ def get_layout():
                     html.Div(
                         className="form text-center",
                         children=[
-                            # html.Button("Suggest All Matches", id="btn-suggest"),
-                            # html.Button("Get Specific Matches", id="btn-suggest-specific"),
-                            # html.Button("Download CSV File", id="down-csv-file"),
                             dcc.Link(
-                                "Download CSV file", href="/download", refresh=True
+                                "Download Updated CSV Files",
+                                href="/download",
+                                refresh=True,
+                                id="DBUTTON",
                             ),
                         ],
                     ),
@@ -172,17 +172,6 @@ def get_layout():
                         ]
                     ),
                     matches_sorted_container(),
-                    # The original downloading button I made, container
-                    # html.Div(
-                    #     className="row",
-                    #     children=[
-                    #         html.Div(
-                    #             children=[],
-                    #             id="dowloading-container",
-                    #             className="col text-center",
-                    #         )
-                    #     ],
-                    # ),
                 ],
             ),
         ],

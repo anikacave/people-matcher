@@ -136,6 +136,18 @@ class DataStore:
 
     def set_mentees(self, df):
         self.mentees = df
+    
+    def to_zip(self):
+        df = self.matches()
+        match_csv = df[df.status == 'confirmed']
+        match_csv.to_csv('./downloads/matches.csv')
+
+        mentee_csv=df[df.status != 'confirmed']
+        # mentee_csv=self.mentees
+        mentee_csv.to_csv('./downloads/remaining-mentees.csv')
+
+        mentor_csv=df[df.status != 'confirmed']
+        mentor_csv.to_csv('./downloads/remaining-mentors.csv')
 
     def matches(self, recompute=False):
         if not recompute and self.__matches is not None:
@@ -145,7 +157,7 @@ class DataStore:
         return self.__matches
 
     def matches_to_show(
-        self, status="sugggested", sort_by=None, filter_key=None, filter_value=None
+        self, status="suggested", sort_by=None, filter_key=None, filter_value=None
     ):
         df = self.matches()
         df = df[df.status == status]
@@ -180,6 +192,7 @@ class DataStore:
             if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
                 row["status"] = "confirmed"
         self.__matches = pd.DataFrame(rows)
+        self.to_zip()
 
     def unconfirm_match(self, mentor_id, mentee_id):
         pass
@@ -191,7 +204,7 @@ class DataStore:
             if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
                 row["status"] = "rejected"
         self.__matches = pd.DataFrame(rows)
-
+    
     @property
     def mock_mentors(self):
         return load_mock_mentors()

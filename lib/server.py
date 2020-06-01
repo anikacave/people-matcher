@@ -5,23 +5,103 @@ import numpy as np
 import base64
 import datetime
 import io
+from zipfile import ZipFile 
+import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import dash
 import dash_table
-from flask import Flask, send_file
+from flask import Flask, send_file, send_from_directory
 from dash.dependencies import Input, State, Output
 import sys
 import importlib
 from lib import recommender, db
 from lib.pages.index import get_layout
 from lib.dash_app import app, server
+import os
 
 
 @server.route("/health")
 def health():
     return "I am fine."
+    # return "hello"
+
+@server.after_request
+def add_header(response):
+#     """
+#     Add headers to both force latest IE rendering engine or Chrome Frame,
+#     and also to cache the rendered page for 10 minutes.
+#     """
+    # response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
+    response.headers['Cache-Control'] = 'public, max-age=0'
+    return response
+
+@server.route("/download")
+def download_csv():
+
+    def format_matches():
+        match_csv = pd.read_csv('./downloads/matches.csv')
+        k = match_csv['mentor_name']+'-'+match_csv['mentee_name']
+        match_csv['match']=k
+        new_cols = ['match','mentor_name','mentor_ethnicity','mentor_address','mentor_id','mentee_name','mentee_ethnicity', 'mentee_address', 'mentee_id']
+        new_matches=match_csv[new_cols]
+        new_matches.to_csv('./downloads/matches.csv')
+        matched_mentors = new_matches['mentor_name'].tolist()
+        matched_mentees = new_matches['mentee_name'].tolist()
+        return matched_mentors, matched_mentees
+    
+    def format_mentees(matched):
+        matched_mentees = matched
+        mentees_csv = pd.read_csv('./downloads/remaining-mentees.csv')
+        new_cols = ['mentee_name','mentee_ethnicity','mentee_address']
+        new_mentees = mentees_csv[new_cols]
+        new_mentees.drop_duplicates(subset="mentee_name", keep="first", inplace=True)
+        for r in matched_mentees:
+            new_mentees = new_mentees[new_mentees.mentee_name != r]
+        new_mentees.to_csv('./downloads/remaining-mentees.csv')
+
+    def format_mentors(matched):
+        matched_mentors = matched
+        mentors_csv = pd.read_csv('./downloads/remaining-mentors.csv')
+        new_cols = ['mentor_name','mentor_ethnicity','mentor_address']
+        new_mentors = mentors_csv[new_cols]
+        new_mentors.drop_duplicates(subset="mentor_name", keep="first", inplace=True)
+        new_mentors.to_csv('./downloads/remaining-mentors.csv')
+        for r in matched_mentors:
+            new_mentors = new_mentors[new_mentors.mentor_name != r]
+        new_mentors.to_csv('./downloads/remaining-mentors.csv')
+
+    matched_mentors, matched_mentees = format_matches()
+    format_mentees(matched_mentees)
+    format_mentors(matched_mentors)
+
+    try:
+        directory = "./downloads"
+        file_paths = []
+
+        for root, directories, files in os.walk(directory):
+            for filename in files:
+                filepath = os.path.join(root, filename)
+                file_paths.append(filepath)
+        
+        data = io.BytesIO()
+
+        with ZipFile(data,mode="w") as zip:
+            for file in file_paths: 
+                zip.write(file)
+        data.seek(0)
+
+        
+        return send_file(
+            data, 
+            mimetype="application/zip", 
+            attachment_filename="download.zip",
+            as_attachment=True,
+        ) 
+
+    except:
+        return "Download is not working!"
 
 
 @app.callback(
@@ -52,14 +132,13 @@ def handle_url_change(pathname):
 #     return [html.H3("Downloading..."),]
 
 
-@server.route("/download")
-def download_csv():
-    return send_file(
-        "downloadFile.csv",
-        mimetype="text/csv",
-        attachment_filename="downloadFile.csv",
-        as_attachment=True,
-    )
+
+
+
+
+
+
+
     # change the path of the file/return multiple
     # just a random test file I made downloading on click
 
