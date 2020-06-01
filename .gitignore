@@ -5,6 +5,3 @@
 .env
 data/postgres
 .idea/
-downloads/remaining-mentors.csv
-downloads/matches.csv
-downloads/remaining-mentees.csv
