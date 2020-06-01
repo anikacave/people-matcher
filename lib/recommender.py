@@ -211,6 +211,8 @@ class DataStore:
             if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
                 row["status"] = "rejected"
         self.__matches = pd.DataFrame(rows)
+        self.to_zip()
+        
     
     @property
     def mock_mentors(self):
