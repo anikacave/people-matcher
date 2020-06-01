@@ -176,13 +176,20 @@ class DataStore:
                     max_distance = float(filter_value)
                 except:
                     max_distance = 1000
-                df = df[df.distance < max_distance]
+                df = df[df["distance"].astype(float) < max_distance]
+            elif filter_key=="ethnicity_match":
+                df = df[df["ethnicity_match"].astype(int)==1]
+            elif filter_key=="score":
+                df = df[df["score"].astype(str)>=str(filter_value)]
             else:
                 df = df[df[filter_key].astype(str) == str(filter_value)].reset_index(
                     drop=True
                 )
         if sort_by is not None:
-            df = df.sort_values(by=sort_by).reset_index(drop=True)
+            if sort_by == "ethnicity_match":
+                df=df.sort_values(by="ethnicity_match", ascending=False).reset_index(drop=True)
+            else:
+                df = df.sort_values(by=sort_by).reset_index(drop=True)
         return df
 
     def confirm_match(self, mentor_id, mentee_id):

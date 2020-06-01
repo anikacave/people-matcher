@@ -135,7 +135,7 @@ def get_layout():
                                     {"label": "Mentee Name", "value": "mentee_name"},
                                     {"label": "Score", "value": "score"},
                                     {"label": "Distance", "value": "distance"},
-                                    {"label": "Ethinicity Match", "value": "ethnicity"},
+                                    {"label": "Ethnicity Match", "value": "ethnicity_match"},
                                 ],
                                 id="SORTBY",
                                 placeholder="Select",
@@ -147,7 +147,7 @@ def get_layout():
                                     {"label": "By Mentee", "value": "mentee_name"},
                                     {"label": "By Score", "value": "score"},
                                     {"label": "Max Distance", "value": "distance"},
-                                    {"label": "Ethnicity Match", "value": "ethnicity"},
+                                    {"label": "Ethnicity Match", "value": "ethnicity_match"},
                                     {"label": "None", "value": "none"},
                                 ],
                                 id="FILTER",
@@ -325,7 +325,7 @@ def get_specifics_filtering(value_in, existing_state):
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
-    if value_in == "ethnicity":
+    if value_in == "ethnicity_match":
         return [
             html.H3("Only Display Matches with the Same Ethnicity"),
             dcc.Input(id="get-specifics", value="Ethnicity Matches Only", type="text"),
