@@ -103,17 +103,22 @@ def download_csv():
     except:
         return "Download is not working!"
 
+def clear_csv():
+    open('./downloads/matches.csv', 'w').close()
+    open('./downloads/remaining-mentees.csv', 'w').close()
+    open('./downloads/remaining-mentors.csv', 'w').close()
 
 @app.callback(
     Output("page-content", "children"), [dash.dependencies.Input("url", "pathname")]
 )
 def handle_url_change(pathname):
     if pathname is None or pathname == "" or pathname == "/":
+        clear_csv()
         return get_layout()
     else:
         page_module = importlib.import_module(pathname.replace("/", "."), "lib.pages")
+        clear_csv()
         return page_module.get_layout()
-
 
 # This all goes with the original downloading button that I added
 
