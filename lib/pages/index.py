@@ -96,6 +96,8 @@ def matches_sorted_container():
 
 
 def get_layout():
+    global __store__
+    __store__ = recommender.DataStore()
     return html.Div(
         id="app",
         className="container",
