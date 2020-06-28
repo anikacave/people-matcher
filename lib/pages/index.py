@@ -18,6 +18,7 @@ tabs_styles = {"height": "1.8rem"}
 tab_style = {
     "borderBottom": "1px solid #d6d6d6",
     "padding": "6px",
+    "fontSize":"18px",
     "fontWeight": "bold",
 }
 
@@ -25,6 +26,7 @@ tab_selected_style = {
     "borderTop": "1px solid #d6d6d6",
     "borderBottom": "1px solid #d6d6d6",
     "backgroundColor": "#119DFF",
+    "fontSize":"18px",
     "color": "white",
     "padding": "6px",
 }
@@ -58,7 +60,7 @@ def matches_sorted_container():
                 ],
                 className="mt-2",
             ),
-            html.H2(id="match-area-title", children="", className="text-center"),
+            html.H2(id="match-area-title", children="", className="text-center", style={"padding":"10px", "fontSize":"24px"}),
             html.Div(
                 children=[
                     html.Div(
@@ -108,7 +110,7 @@ def get_layout():
                 className="jumbotron text-center",
                 children=[
                     html.H1(
-                        "People Matcher", className="text-center jumbotron-heading"
+                        "Y•E•S MENTORING MATCHER", className="text-center jumbotron-heading"
                     ),
                 ],
             ),
@@ -117,19 +119,21 @@ def get_layout():
                 className="jumbotron",
                 children=[
                     html.Div(
-                        className="form text-center",
+                        className="form text-right",
                         children=[
                             dcc.Link(
                                 "Download Updated CSV Files",
                                 href="/download",
                                 refresh=True,
                                 id="DBUTTON",
+                                className = "btn btn-primary",
+                                style = {"fontSize": "18px",}
                             ),
                         ],
                     ),
                     html.Div(
                         children=[
-                            html.Label("Sort By"),
+                            html.Label("Sort By", style = {"padding": "5px",  "fontSize": "18px", "fontWeight":"bold"}),
                             dcc.Dropdown(
                                 style={"textAlign": "center",},
                                 options=[
@@ -142,21 +146,31 @@ def get_layout():
                                 id="SORTBY",
                                 placeholder="Select",
                             ),
-                            html.Label("Filter By"),
-                            dcc.RadioItems(
-                                options=[
-                                    {"label": "By Mentor", "value": "mentor_name"},
-                                    {"label": "By Mentee", "value": "mentee_name"},
-                                    {"label": "By Score", "value": "score"},
-                                    {"label": "Max Distance", "value": "distance"},
-                                    {"label": "Ethnicity Match", "value": "ethnicity_match"},
-                                    {"label": "None", "value": "none"},
-                                ],
-                                id="FILTER",
+                            html.Label("Filter By", style = {"padding-top": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
+                            html.Div(
+                                #className="form-check form-check-inline",
+                                dcc.RadioItems(
+                                    options=[
+                                        {"label": "By Mentor", "value": "mentor_name"},
+                                        {"label": "By Mentee", "value": "mentee_name"},
+                                        {"label": "By Score", "value": "score"},
+                                        {"label": "Max Distance", "value": "distance"},
+                                        {"label": "Ethnicity Match", "value": "ethnicity_match"},
+                                        {"label": "None", "value": "none"},
+                                    ],
+                                    id="FILTER",
+                                    style={"width": "100%", "margin": "auto","paddingBottom": "30px"},
+                                    labelStyle = {"paddingRight": "20px",  "fontSize": "14px"},
+                                    #inputStyle = {"width": "100%", "padding": "10px", "margin": "auto"},
+                                    className = "form-check form-check-inline",
+                                    inputClassName= "form-check-input",
+                                    labelClassName= "form-check-label"
+                                )
                             ),
                             html.Div(
+                                #className="form text-left",
                                 children=[
-                                    html.H3("Used For Filtering:"),
+                                    html.Label("Used For Filtering:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
                                     dcc.Input(
                                         id="get-specifics",
                                         value="Enter Here",
@@ -170,6 +184,7 @@ def get_layout():
                             html.Div(
                                 html.Button("Get Matches", id="btn-filter"),
                                 className="col text-center",
+                                style = {"padding":"10px"}
                             ),
                         ]
                     ),
@@ -305,36 +320,36 @@ def get_specifics_filtering(value_in, existing_state):
 
     if value_in == "mentor_name":
         return [
-            html.H3("Enter Mentor Name:"),
+            html.Label("Enter Mentor Name:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
     if value_in == "mentee_name":
         return [
-            html.H3("Enter Mentee Name:"),
+            html.Label("Enter Mentee Name:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
     if value_in == "score":
         return [
-            html.H3("Enter Minimum Score:"),
+            html.Label("Enter Minimum Score:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
     if value_in == "distance":
         return [
-            html.H3("Enter Maximum Distance:"),
+            html.Label("Enter Maximum Distance:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="Enter Here", type="text"),
         ]
 
     if value_in == "ethnicity_match":
         return [
-            html.H3("Only Display Matches with the Same Ethnicity"),
+            html.Label("Only Display Matches with the Same Ethnicity:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="Ethnicity Matches Only", type="text"),
         ]
     if value_in == "none":
         return [
-            html.H3("No Filtering"),
+            html.Label("No Filtering:", style={"padding": "5px", "fontSize":"18px", "fontWeight":"bold"}),
             dcc.Input(id="get-specifics", value="None", type="text"),
         ]
 
@@ -351,6 +366,7 @@ def matches_table(
         return [
             html.Div(
                 ["Please upload or use mock data for both mentors and mentees."],
+                style={"textAlign":"center", "width": "100%", "fontSize":"14px"},
                 className="alert alert-warning alert-dismissible fade show",
             )
         ]
