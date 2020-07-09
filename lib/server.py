@@ -72,9 +72,13 @@ def download_csv():
             new_mentors = new_mentors[new_mentors.mentor_name != r]
         new_mentors.to_csv('./downloads/remaining-mentors.csv')
 
-    matched_mentors, matched_mentees = format_matches()
-    format_mentees(matched_mentees)
-    format_mentors(matched_mentors)
+    try:
+        matched_mentors, matched_mentees = format_matches()
+        format_mentees(matched_mentees)
+        format_mentors(matched_mentors)
+    except:
+        
+        return app.index()
 
     try:
         directory = "./downloads"
