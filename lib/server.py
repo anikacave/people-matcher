@@ -59,6 +59,7 @@ def download_csv():
         new_mentees.drop_duplicates(subset="mentee_name", keep="first", inplace=True)
         for r in matched_mentees:
             new_mentees = new_mentees[new_mentees.mentee_name != r]
+        new_mentees.columns = ['name', 'ethnicity', 'address']
         new_mentees.to_csv('./downloads/remaining-mentees.csv')
 
     def format_mentors(matched):
@@ -70,6 +71,7 @@ def download_csv():
         new_mentors.to_csv('./downloads/remaining-mentors.csv')
         for r in matched_mentors:
             new_mentors = new_mentors[new_mentors.mentor_name != r]
+        new_mentors.columns = ['name', 'ethnicity', 'address']
         new_mentors.to_csv('./downloads/remaining-mentors.csv')
 
     try:
