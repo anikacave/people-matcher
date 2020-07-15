@@ -282,33 +282,42 @@ def suggestion_to_dash(s, index, hidden=False):
                             f"{features.get('distance_in_miles', 1000):.1f} miles"
                         ),
                         html.Div(f"ethnicity match: {features.get('ethnicity_match')}"),
-                        html.Button(
-                            "👍",
-                            id=f"btn-suggestion-thumbup-{index}",
-                            className="btn btn-sm",
-                            value=f"{s.mentor_id},{s.mentee_id}",
-                            style={"fontSize": "2rem"},
-                        ),
-                        html.Button(
-                            "↩️",
-                            id=f"btn-suggestion-back-{index}",
-                            className="btn btn-sm",
-                            value=f"{s.mentor_id},{s.mentee_id}",
-                            style={"fontSize": "2rem"},
-                        ),
-                        html.Button(
-                            "👎",
-                            id=f"btn-suggestion-thumbdown-{index}",
-                            className="btn btn-sm",
-                            value=f"{s.mentor_id},{s.mentee_id}",
-                            style={"fontSize": "2rem"},
-                        ),
+                        html.Div(
+                            className="btn-group mr-2",
+                            role="group",
+                            children = [
+                                html.Button(
+                                    "👍",
+                                    id=f"btn-suggestion-thumbup-{index}",
+                                    type="button",
+                                    className="btn btn-sm",
+                                    value=f"{s.mentor_id},{s.mentee_id}",
+                                    style={"fontSize": "2rem"},
+                                ),
+                                html.Button(
+                                    "↩️",
+                                    id=f"btn-suggestion-back-{index}",
+                                    type="button",
+                                    className="btn btn-sm",
+                                    value=f"{s.mentor_id},{s.mentee_id}",
+                                    style={"fontSize": "2rem"},
+                                ),
+                                html.Button(
+                                    "👎",
+                                    id=f"btn-suggestion-thumbdown-{index}",
+                                    type= "button",
+                                    className="btn btn-sm",
+                                    value=f"{s.mentor_id},{s.mentee_id}",
+                                    style={"fontSize": "2rem"},
+                                ),
+                            ]
+                        )
                     ],
                 ),
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.Label("Mentee: " + str(s.mentor_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
+                        html.Label("Mentor: " + str(s.mentor_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
                         html.Div(s.mentor_address),
                     ],
                 ),
