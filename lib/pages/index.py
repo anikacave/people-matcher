@@ -270,18 +270,25 @@ def suggestion_to_dash(s, index, hidden=False):
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.Label("Mentee: " + str(s.mentee_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
-                        html.Div(s.mentee_address),
+                        html.Label("Mentee: " + str(s.mentee_name), style = {"padding": "10px",  "fontSize": "2rem", "fontWeight":"bold"}),
+                        html.Div(s.mentee_address,
+                        style={"fontSize": "1.4rem"},
+                        ),
                     ],
                 ),
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.Div(f"Score: {s.score:.3f}"),
+                        html.Div(f"Score: {s.score:.3f}",
+                            style={"fontSize": "1.65rem", "fontweight": "bolder"},
+                            ),
                         html.Div(
-                            f"{features.get('distance_in_miles', 1000):.1f} miles"
+                            f"Distance: {features.get('distance_in_miles', 1000):.1f} miles",
+                            style={"fontSize": "1.65rem"},
                         ),
-                        html.Div(f"ethnicity match: {features.get('ethnicity_match')}"),
+                        html.Div(f"Ethnicity Match: {features.get('ethnicity_match')}",
+                        style={"fontSize": "1.65rem"},
+                        ),
                         html.Div(
                             className="btn-group mr-2",
                             role="group",
@@ -317,8 +324,9 @@ def suggestion_to_dash(s, index, hidden=False):
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.Label("Mentor: " + str(s.mentor_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
-                        html.Div(s.mentor_address),
+                        html.Label("Mentor: " + str(s.mentor_name), style = {"padding": "10px",  "fontSize": "2rem", "fontWeight":"bold"}),
+                        html.Div(s.mentor_address,
+                        style={"fontSize": "1.4rem"}),
                     ],
                 ),
             ],
