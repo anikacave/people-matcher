@@ -188,6 +188,8 @@ class DataStore:
         if sort_by is not None:
             if sort_by == "ethnicity_match":
                 df=df.sort_values(by="ethnicity_match", ascending=False).reset_index(drop=True)
+            elif sort_by == "score":
+                df=df.sort_values(by="score", ascending=False).reset_index(drop=True)
             else:
                 df = df.sort_values(by=sort_by).reset_index(drop=True)
         return df
@@ -202,7 +204,13 @@ class DataStore:
         self.to_zip()
 
     def unconfirm_match(self, mentor_id, mentee_id):
-        pass
+        df = self.matches()
+        rows = [r for _, r in df.iterrows()]
+        for row in rows:
+            if row.mentor_id == mentor_id and row.mentee_id == mentee_id:
+                row["status"] = "suggested"
+        self.__matches = pd.DataFrame(rows)
+        self.to_zip()
 
     def reject_match(self, mentor_id, mentee_id):
         df = self.matches()

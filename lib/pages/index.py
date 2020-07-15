@@ -78,6 +78,12 @@ def matches_sorted_container():
                                         style={"fontSize": "2rem"},
                                     ),
                                     html.Button(
+                                        "↩️",
+                                        id=f"btn-suggestion-back-{i}",
+                                        className="btn btn-sm",
+                                        style={"fontSize": "2rem"},
+                                    ),
+                                    html.Button(
                                         "👎",
                                         id=f"btn-suggestion-thumbdown-{i}",
                                         className="btn btn-sm",
@@ -284,6 +290,13 @@ def suggestion_to_dash(s, index, hidden=False):
                             style={"fontSize": "2rem"},
                         ),
                         html.Button(
+                            "↩️",
+                            id=f"btn-suggestion-back-{index}",
+                            className="btn btn-sm",
+                            value=f"{s.mentor_id},{s.mentee_id}",
+                            style={"fontSize": "2rem"},
+                        ),
+                        html.Button(
                             "👎",
                             id=f"btn-suggestion-thumbdown-{index}",
                             className="btn btn-sm",
@@ -452,20 +465,27 @@ def update_matches_view(
 @app.callback(
     Output("thumb_btn_timestamp", "value"),
     [Input(f"btn-suggestion-thumbup-{i}", "n_clicks_timestamp") for i in range(3)]
-    + [Input(f"btn-suggestion-thumbdown-{i}", "n_clicks_timestamp") for i in range(3)],
+    + [Input(f"btn-suggestion-thumbdown-{i}", "n_clicks_timestamp") for i in range(3)]
+    + [Input(f"btn-suggestion-back-{i}", "n_clicks_timestamp") for i in range(3)],
     [State(f"btn-suggestion-thumbup-{i}", "value") for i in range(3)]
-    + [State(f"btn-suggestion-thumbdown-{i}", "value") for i in range(3)],
+    + [State(f"btn-suggestion-thumbdown-{i}", "value") for i in range(3)]
+    + [State(f"btn-suggestion-back-{i}", "value") for i in range(3)],
 )
 def on_thumbup_or_thumbdown(*inputs):
     thumbup_click_timestamps = inputs[:3]
     thumbdown_click_timestamps = inputs[3:6]
-    thumbup_btn_values = inputs[6:9]
-    thumbdown_btn_values = inputs[9:12]
+    back_click_timestamps = inputs [6:9]
+    thumbup_btn_values = inputs[9:12]
+    thumbdown_btn_values = inputs[12:15]
+    back_btn_values = inputs [15:18]
     thumbup_click_timestamps = [
         0 if t is None else float(t) for t in thumbup_click_timestamps
     ]
     thumbdown_click_timestamps = [
         0 if t is None else float(t) for t in thumbdown_click_timestamps
+    ]
+    back_click_timestamps = [
+        0 if t is None else float(t) for t in back_click_timestamps
     ]
     most_recently_clicked_thumbup_idx = sorted(
         enumerate(thumbup_click_timestamps), key=lambda x: -x[1]
@@ -473,22 +493,27 @@ def on_thumbup_or_thumbdown(*inputs):
     most_recently_clicked_thumbdown_idx = sorted(
         enumerate(thumbdown_click_timestamps), key=lambda x: -x[1]
     )[0][0]
-
+    most_recently_clicked_back_idx = sorted(
+        enumerate(back_click_timestamps), key=lambda x: -x[1]
+    )[0][0]
     most_recently_clicked_timestamp = max(
-        thumbup_click_timestamps + thumbdown_click_timestamps
+        thumbup_click_timestamps + thumbdown_click_timestamps + back_click_timestamps
     )
-    print("on thumbup or thumbdown")
+    print("on thumbup or thumbdown or back")
     print(thumbup_btn_values)
     if most_recently_clicked_timestamp == 0:
         return -1
-    is_thumbup = max(thumbup_click_timestamps) >= max(thumbdown_click_timestamps)
+    is_thumbup = max(thumbup_click_timestamps) >= max(thumbdown_click_timestamps) and max(thumbup_click_timestamps) >= max(back_click_timestamps)
     if is_thumbup:
         btn_value = thumbup_btn_values[most_recently_clicked_thumbup_idx]
         mentor_id, mentee_id = tuple(btn_value.split(","))
         __store__.confirm_match(mentor_id, mentee_id)
-    else:
+    elif max(thumbdown_click_timestamps) >= max(back_click_timestamps):
         btn_value = thumbdown_btn_values[most_recently_clicked_thumbdown_idx]
         mentor_id, mentee_id = tuple(btn_value.split(","))
         __store__.reject_match(mentor_id, mentee_id)
-
+    else:
+        btn_value = back_btn_values[most_recently_clicked_back_idx]
+        mentor_id, mentee_id = tuple(btn_value.split(","))
+        __store__.unconfirm_match(mentor_id, mentee_id)
     return most_recently_clicked_timestamp
