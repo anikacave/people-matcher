@@ -270,7 +270,7 @@ def suggestion_to_dash(s, index, hidden=False):
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.H3("Mentee: " + str(s.mentee_name)),
+                        html.Label("Mentee: " + str(s.mentee_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
                         html.Div(s.mentee_address),
                     ],
                 ),
@@ -308,7 +308,7 @@ def suggestion_to_dash(s, index, hidden=False):
                 html.Div(
                     className="card col-4",
                     children=[
-                        html.H3("Mentor: " + str(s.mentor_name)),
+                        html.Label("Mentee: " + str(s.mentor_name), style = {"padding": "10px",  "fontSize": "18px", "fontWeight":"bold"}),
                         html.Div(s.mentor_address),
                     ],
                 ),
